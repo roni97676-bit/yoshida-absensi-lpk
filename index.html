@@ -56,26 +56,39 @@ function dlg(title,inner,ok,wide){return new Promise(res=>{const o=document.crea
 const confirmX=(t,ok)=>dlg('Konfirmasi','<p>'+esc(t).replace(/\n/g,'<br>')+'</p>',ok||'Ya').then(v=>v===true);
 const askX=(t,def)=>dlg(esc(t),'<input style="width:100%" value="'+esc(def)+'">','Simpan').then(v=>v===null?null:String(v).trim());
 async function log(action,detail){try{await db.collection("audit").doc(Date.now()+"_"+Math.random().toString(36).slice(2,6)).set({at:new Date().toISOString(),by:me?me.name+" ("+me.phone+")":"-",action,detail})}catch(e){}}
-function sub(name,cb,q){const c=q||db.collection(name);c.onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());cb(o);ok[name]=1;schedule()},e=>{console.error(name,e);ok[name]=1;schedule()})}
+function sub(name,cb,q){const c=q||db.collection(name);return c.onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());cb(o);ok[name]=1;schedule()},e=>{console.error(name,e);ok[name]=1;schedule()})}
 let raf;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if(me&&dirty&&!ok._force)return;render()})}
+let dataUnsubs=[],sessionStarted=false,heartbeatTimer=null;
+function stopDataSubscriptions(){dataUnsubs.forEach(fn=>{try{if(typeof fn==='function')fn()}catch(e){}});dataUnsubs=[];sessionStarted=false;Object.keys(ok).forEach(k=>delete ok[k]);S={users:{},classes:{},students:{},att:{},grades:{},presence:{},audit:[]}}
+function startSession(){
+  if(sessionStarted)return;
+  sessionStarted=true;window._gr=Date.now();beat();
+  dataUnsubs.push(sub("users",o=>S.users=o));
+  dataUnsubs.push(sub("classes",o=>S.classes=o));
+  dataUnsubs.push(sub("students",o=>S.students=o));
+  dataUnsubs.push(sub("attendance",o=>S.att=o));
+  dataUnsubs.push(sub("grades",o=>S.grades=o));
+  dataUnsubs.push(db.collection('presence').onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.presence=o;if(view==='sensei'&&me&&!dirty)render()},e=>console.error('presence',e)));
+  dataUnsubs.push(db.collection("audit").orderBy("at","desc").limit(100).onSnapshot(s=>{S.audit=s.docs.map(d=>d.data());ok.audit=1;schedule()},e=>{console.error('audit',e);ok.audit=1;schedule()}));
+  if(!heartbeatTimer)heartbeatTimer=setInterval(()=>{if(me){beat();if(view==='sensei'&&!dirty)render()}},45000);
+}
 async function init(){
   if(!db||!window.ygSupabase){const msg=window.ygConfigError||'Supabase belum dapat diinisialisasi.';$("#root").innerHTML=`<div id="login"><div class="card"><h2>Konfigurasi belum siap</h2><p class="mu">${esc(msg)}</p></div></div>`;return}
-  sub("users",o=>S.users=o);sub("classes",o=>S.classes=o);sub("students",o=>S.students=o);sub("attendance",o=>S.att=o);sub("grades",o=>S.grades=o);
-  db.collection('presence').onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.presence=o;if(view==='sensei'&&me&&!dirty)render()},e=>console.error(e));
-  db.collection("audit").orderBy("at","desc").limit(100).onSnapshot(s=>{S.audit=s.docs.map(d=>d.data());ok.audit=1;schedule()},e=>{console.error(e);ok.audit=1});
   const loadProfile = async session => {
-    if(!session){me=null;render();return}
+    if(!session){stopDataSubscriptions();me=null;render();return}
     const {data,error}=await window.ygSupabase.from('app_users').select('*').eq('id',session.user.id).maybeSingle();
-    if(error||!data||data.active===false){me=null;await window.ygSupabase.auth.signOut();render();return}
+    if(error){console.error('Gagal membaca profil app_users:',error);const er=$('#er');if(er)er.textContent='Gagal membaca profil akun: '+error.message;return}
+    if(!data||data.active===false){me=null;await window.ygSupabase.auth.signOut();render();return}
     me={...data,email:data.email,phone:data.phone||data.email};window._gr=Date.now();startSession();render();
   };
-  const {data:{session}}=await window.ygSupabase.auth.getSession();
-  if(session) await loadProfile(session); else render();
-  window.ygSupabase.auth.onAuthStateChange(async(_event,session)=>{await loadProfile(session)});
-  setInterval(()=>{beat();if(view==='sensei'&&me&&!dirty)render()},45000);
-  setTimeout(()=>{if(!ok.users)render()},10000);
+  const {data:{session},error}=await window.ygSupabase.auth.getSession();
+  if(error)console.error('Gagal memeriksa sesi login:',error);
+  if(session) await loadProfile(session); else {stopDataSubscriptions();me=null;render()}
+  window.ygSupabase.auth.onAuthStateChange((_event,session)=>{setTimeout(()=>{loadProfile(session).catch(e=>{console.error('Gagal memuat profil pengguna:',e);const er=$('#er');if(er)er.textContent='Login berhasil, tetapi profil akun gagal dimuat. Periksa izin tabel app_users dan data akun admin.';});},0);});
 }
+
 function render(){
+  if(!me){loginView();return}
   if(!ok.users||!ok.classes||!ok.students||!ok.attendance){return}
   if(me&&S.users[me.email]?.active===false){window.ygSupabase.auth.signOut();me=null}
   if(me&&S.users[me.email])me={...S.users[me.email],email:me.email,phone:S.users[me.email].phone||me.phone};
@@ -382,7 +395,6 @@ function mon2(m){
  $('#ma').onclick=()=>{fl.forEach(([i])=>sel[i]=1);dirty=false;render()};$('#mx').onclick=()=>{Object.keys(sel).forEach(k=>delete sel[k]);dirty=false;render()};
  m.querySelectorAll('[data-ms]').forEach(b=>b.onclick=()=>{const i=b.dataset.ms;if(sel[i])delete sel[i];else sel[i]=1;dirty=false;render()});
  if($('#mp'))$('#mp').onclick=()=>{const one=D.length===1;const secs=[];if(!one)secs.push({t:'Perbandingan siswa',head:['NIS','Nama','Kelas','% Hadir','Rata nilai','Tren','Status'],rows:D.map(({n,s,a})=>[n,s.name,cls(s.classId),a.pct===null?'-':a.pct+'%',a.av??'-',a.tr,a.st])});D.forEach(({n,s,a})=>secs.push(...secsFor(n,s,a,one?'':s.name+' - ')));pdf('Laporan Monitoring Siswa',one?'Nama: '+D[0].s.name+'  |  NIS: '+D[0].n+'  |  Kelas: '+cls(D[0].s.classId)+'  |  Periode: '+(mo||'Semua'):'Jumlah siswa: '+D.length+'  |  Periode: '+(mo||'Semua'),secs,'Monitoring-'+(one?D[0].n:'beberapa-siswa')+'.pdf','portrait')}}
-function startSession(){window._gr=Date.now();beat()}
 function loginView(){
  $('#root').innerHTML=`<div id='login'><div class='card'><h2>Absensi Yoshida Gakkou</h2><p class='mu'>Masuk menggunakan email dan password akun testing yang diberikan Master Admin.</p><input id='em' type='email' placeholder='Email' autocomplete='username' style='width:100%;margin-bottom:8px'><input id='pw' type='password' placeholder='Password' autocomplete='current-password' style='width:100%;margin-bottom:10px'><button class='b' id='go' style='width:100%'>Masuk</button><p id='er' class='bad'></p></div></div>`;
  const go=async()=>{const er=$('#er');er.textContent='';try{const {error}=await window.ygSupabase.auth.signInWithPassword({email:$('#em').value.trim().toLowerCase(),password:$('#pw').value});if(error)throw error;}catch(e){er.textContent='Login gagal: '+(e.message||'Periksa email dan password.')}};
