@@ -217,33 +217,64 @@ const addD=(d,n)=>new Date(Date.parse(d)+n*864e5).toISOString().slice(0,10);
 const addM=(d,n)=>{const x=new Date(Date.parse(d));x.setUTCMonth(x.getUTCMonth()+n);return addD(x.toISOString().slice(0,10),-1)};
 const inM=(d,mo)=>!mo||(typeof mo==='string'?d.startsWith(mo):(d>=mo.from&&d<=mo.to));
 function laporan(m){
- const r=window._lr=window._lr||{t:'gab',cid:'',m:'bulan',mo:month(),len:4};
+ const r=window._lr=window._lr||{t:'gab',cid:'',batch:'',m:'bulan',mo:month(),len:4,q:''};
  if(!r.m)r.m='bulan';if(!r.len)r.len=4;
  const ds=[...Object.values(S.att).map(a=>a.date),...Object.values(S.grades).map(g=>g.date)].sort(),k1=pk(today()),k0=ds.length?Math.min(pk(ds[0]),k1):k1;
  const wk=[];for(let k=k1;k>=Math.max(k0,k1-60);k--)wk.push(k);
  if(r.w===undefined||!wk.includes(r.w))r.w=k1;
  const bs=bList().map(x=>x[0]);
- if(!bs.includes(r.b))r.b=bs[0]||'';
+ if(!bs.includes(r.batch))r.batch='';
+ const classes=Object.entries(S.classes).filter(([i,c])=>!r.batch||c.batchId===r.batch);
+ if(!classes.some(([i])=>i===r.cid))r.cid='';
  let rng='',pl2='Semua periode';
  if(r.m==='bulan'){rng=r.mo||'';pl2=r.mo?'Bulan '+r.mo:'Semua periode'}
  else if(r.m==='2minggu'){rng={from:pl(r.w),to:addD(pl(r.w),13)};pl2='2 minggu: '+rng.from+' s/d '+rng.to}
- else if(r.m==='batch'){rng='';pl2=r.b?bName(r.b)+' (seluruh periode)':'Batch (belum dibuat)'}
- const ss=Object.entries(S.students).filter(([,s])=>(!r.cid||s.classId===r.cid)&&(r.m!=='batch'||S.classes[s.classId]?.batchId===r.b)).sort((a,b)=>a[1].name.localeCompare(b[1].name));
+ else if(r.m==='batch'){rng='';pl2=r.batch?bName(r.batch)+' (seluruh periode)':'Seluruh periode'}
+ else if(r.m==='rentang'){
+  const from=r.from||addD(today(),-13),to=r.to||today();
+  rng={from:from<=to?from:to,to:from<=to?to:from};pl2='Rentang: '+rng.from+' s/d '+rng.to;
+ }
+ const q=(r.q||'').trim().toLocaleLowerCase('id');
+ const ss=Object.entries(S.students).filter(([nis,s])=>
+  (!r.cid||s.classId===r.cid)&&
+  (!r.batch||S.classes[s.classId]?.batchId===r.batch)&&
+  (!q||String(nis).toLocaleLowerCase('id').includes(q)||String(s.name||'').toLocaleLowerCase('id').includes(q))
+ ).sort((a,b)=>a[1].name.localeCompare(b[1].name));
  const A=ss.map(([n,s])=>({n,s,a:an(n,rng)}));
  const head=r.t==='abs'?['NIS','Nama','Kelas','H','I','S','A','L','% Hadir','Kategori']:r.t==='nilai'?['NIS','Nama','Kelas',...CATS,'Rata-rata','Predikat']:['NIS','Nama','Kelas','H','I','S','A','L','% Hadir','Rata nilai','Predikat','Tren','Status'];
  const row=x=>{const a=x.a,b=[x.n,x.s.name,cls(x.s.classId)],pc=a.pct===null?'-':a.pct+'%';return r.t==='abs'?[...b,a.at.H,a.at.I,a.at.S,a.at.A,a.at.L,pc,catT(a.pct)]:r.t==='nilai'?[...b,...CATS.map(c=>a.cats[c]??'-'),a.av??'-',gl(a.av)]:[...b,a.at.H,a.at.I,a.at.S,a.at.A,a.at.L,pc,a.av??'-',gl(a.av),a.tr,a.st]};
  const rows=A.map(row),tH=A.reduce((q,x)=>q+x.a.at.H,0),tD=A.reduce((q,x)=>q+x.a.at.H+x.a.at.I+x.a.at.S+x.a.at.A,0),sc=A.flatMap(x=>x.a.G.map(g=>+g.score));
  const TT={abs:'Laporan Kehadiran Siswa',nilai:'Laporan Penilaian Siswa',gab:'Laporan Kehadiran dan Penilaian Siswa'}[r.t];
- const sub='Kelas: '+(r.cid?cls(r.cid):'Semua')+'  |  Periode: '+pl2+'  |  Siswa: '+A.length+'  |  Rata-rata kehadiran: '+(tD?Math.round(tH/tD*100)+'%':'-')+'  |  Rata-rata nilai: '+(avg(sc)??'-');
+ const sub='Batch: '+(r.batch?bName(r.batch):'Semua Batch')+'  |  Kelas: '+(r.cid?cls(r.cid):'Semua Kelas')+'  |  Periode: '+pl2+'  |  Siswa: '+A.length+'  |  Rata-rata kehadiran: '+(tD?Math.round(tH/tD*100)+'%':'-')+'  |  Rata-rata nilai: '+(avg(sc)??'-');
  const op=(v,l,s)=>`<option value='${esc(v)}' ${s?'selected':''}>${esc(l)}</option>`;
- m.innerHTML=`<h2>Rekap Laporan</h2><div class='card'><div class='row np' style='margin:0'><select id='rt'>${op('gab','Gabungan (absensi + nilai)',r.t==='gab')}${op('abs','Absensi saja',r.t==='abs')}${op('nilai','Penilaian saja',r.t==='nilai')}</select><select id='rk'><option value=''>Semua kelas</option>${Object.entries(S.classes).map(([i,c])=>op(i,c.name,i===r.cid)).join('')}</select><select id='rm'>${op('2minggu','Per 2 minggu',r.m==='2minggu')}${op('bulan','Per 1 bulan',r.m==='bulan')}${op('batch','Per batch / periode',r.m==='batch')}${op('semua','Keseluruhan',r.m==='semua')}</select>${r.m==='bulan'?`<input type='month' id='rb' value='${r.mo}'>`:''}${r.m==='2minggu'?`<select id='rw'>${wk.map(k=>op(k,pl(k)+' s/d '+addD(pl(k),13),k===r.w)).join('')}</select>`:''}${r.m==='batch'?`<select id='rbt'>${bs.map(b=>op(b,bName(b),b===r.b)).join('')||'<option value="">Belum ada batch</option>'}</select>`:''}<button class='g' id='pr'>Cetak</button>${can('export')?`<button class='b' id='pd'>Unduh PDF</button>`:''}</div><p class='mu'>${esc(sub)}<br>Persen kehadiran = Hadir / (H+I+S+A). Libur tidak dihitung. Standar minimum 80%.${r.m==='batch'?' Batch = kelompok kelas yang diatur di menu Data Kelas & Batch.':''}</p><div class='tw'><table><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows.map(x=>`<tr>${x.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</table></div></div>`;
- $('#rt').onchange=e=>{r.t=e.target.value;dirty=false;render()};$('#rk').onchange=e=>{r.cid=e.target.value;dirty=false;render()};$('#rm').onchange=e=>{r.m=e.target.value;dirty=false;render()};
- if($('#rb'))$('#rb').onchange=e=>{r.mo=e.target.value;dirty=false;render()};
- if($('#rw'))$('#rw').onchange=e=>{r.w=Number(e.target.value);dirty=false;render()};
- if($('#rbt'))$('#rbt').onchange=e=>{r.b=e.target.value;dirty=false;render()};
- if($('#rl'))$('#rl').onchange=e=>{r.len=Math.min(12,Math.max(1,Number(e.target.value)||4));dirty=false;render()};
+ const rangeStart=r.m==='rentang'?(r.from||addD(today(),-13)):r.m==='2minggu'?pl(r.w):r.m==='bulan'?(r.mo?`${r.mo}-01`:today().slice(0,7)+'-01'):ds[0]||today();
+ const rangeEnd=r.m==='rentang'?(r.to||today()):r.m==='2minggu'?addD(pl(r.w),13):r.m==='bulan'?(r.mo?addD(addM(r.mo+'-01',1),0):today()):today();
+ m.innerHTML=`<h2>Rekap Laporan</h2><div class='card'>
+ <div class='grid' style='grid-template-columns:repeat(4,minmax(130px,1fr));gap:8px;margin-bottom:10px'>
+ <label class='fld'><span>Jenis laporan</span><select id='rt'>${op('gab','Gabungan (absensi + nilai)',r.t==='gab')}${op('abs','Absensi saja',r.t==='abs')}${op('nilai','Penilaian saja',r.t==='nilai')}</select></label>
+ <label class='fld'><span>Batch</span><select id='rbatch'>${op('','Semua Batch',!r.batch)}${bs.map(b=>op(b,bName(b),b===r.batch)).join('')}</select></label>
+ <label class='fld'><span>Kelas</span><select id='rk'>${op('','Semua Kelas',!r.cid)}${classes.map(([i,c])=>op(i,c.name,i===r.cid)).join('')}</select></label>
+ <label class='fld'><span>Periode</span><select id='rm'>${op('2minggu','Per 2 minggu',r.m==='2minggu')}${op('bulan','Per 1 bulan',r.m==='bulan')}${op('batch','Per batch / periode',r.m==='batch')}${op('semua','Keseluruhan',r.m==='semua')}${op('rentang','Rentang tanggal',r.m==='rentang')}</select></label>
+ </div>
+ <div class='grid' style='grid-template-columns:minmax(220px,1.3fr) minmax(150px,1fr) minmax(150px,1fr) auto auto;gap:8px;align-items:end;margin:0'>
+ <label class='fld'><span>Pencarian siswa</span><input id='rq' type='search' placeholder='Cari nama siswa atau NIS...' value='${esc(r.q||'')}'></label>
+ <label class='fld'><span>Dari tanggal</span><input id='rfrom' type='date' value='${esc(rangeStart)}'></label>
+ <label class='fld'><span>Sampai tanggal</span><input id='rto' type='date' value='${esc(rangeEnd)}'></label>
+ <button class='g' id='pr'>Cetak</button>${can('export')?`<button class='b' id='pd'>Unduh PDF</button>`:''}
+ </div>
+ <p class='mu'>${esc(sub)}<br>Persen kehadiran = Hadir / (H+I+S+A). Libur tidak dihitung. Standar minimum 80%.</p>
+ <div class='tw'><table><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows.map(x=>`<tr>${x.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan='${head.length}' class='mu'>Tidak ada siswa yang cocok dengan filter.</td></tr>`}</table></div></div>`;
+ const apply=()=>{dirty=false;render()};
+ $('#rt').onchange=e=>{r.t=e.target.value;apply()};
+ $('#rbatch').onchange=e=>{r.batch=e.target.value;r.cid='';apply()};
+ $('#rk').onchange=e=>{r.cid=e.target.value;apply()};
+ $('#rm').onchange=e=>{r.m=e.target.value;if(r.m==='rentang'){r.from=rangeStart;r.to=rangeEnd}apply()};
+ $('#rq').oninput=e=>{r.q=e.target.value;const pos=e.target.selectionStart;render();const n=$('#rq');if(n){n.focus();n.setSelectionRange(pos,pos)}};
+ $('#rfrom').onchange=e=>{r.from=e.target.value;r.m='rentang';apply()};
+ $('#rto').onchange=e=>{r.to=e.target.value;r.m='rentang';apply()};
  $('#pr').onclick=()=>print();
- if($('#pd'))$('#pd').onclick=()=>pdf(TT,sub,[{head,rows}],'Laporan-'+r.t+'-'+r.m+'.pdf','landscape')}
+ if($('#pd'))$('#pd').onclick=()=>pdf(TT,sub,[{head,rows}],'Laporan-'+r.t+'-'+r.m+'.pdf','landscape')
+}
 const BL={januari:1,februari:2,maret:3,april:4,mei:5,juni:6,juli:7,agustus:8,september:9,oktober:10,november:11,desember:12};
 function nd(v){v=String(v??'').trim();if(!v)return '';let m;if(m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');if(m=v.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{2,4})/)){const y=m[3].length===2?'20'+m[3]:m[3];return y+'-'+m[2].padStart(2,'0')+'-'+m[1].padStart(2,'0')}if(m=v.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/)){const k=BL[m[2].toLowerCase()];if(k)return m[3]+'-'+String(k).padStart(2,'0')+'-'+m[1].padStart(2,'0')}return ''}
 function mapCols(h){const f=(re,ex)=>h.findIndex(c=>re.test(c)&&!(ex&&ex.test(c)));return{nis:f(/\bnis\b|no\.? ?induk|nomor induk/i),name:f(/nama/i,/guru|sensei|ortu|orang tua/i),gender:f(/jenis kelamin|^jk$|^l\/p$|gender/i),cls:f(/kelas/i),joined:f(/(tanggal|tgl)\.? ?masuk|^masuk|^periode/i),ended:f(/(tanggal|tgl)\.? ?(keluar|selesai|lulus)|^keluar|^selesai/i),status:f(/^status/i),note:f(/keterangan|catatan/i)}}
