@@ -151,8 +151,15 @@ let db=window.ygDb||null,dl=window.ygDownloads||null,S={users:{},classes:{},stud
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const today=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Asia/Jakarta",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date()).reduce((o,x)=>(o[x.type]=x.value,o),{});return p.year+"-"+p.month+"-"+p.day};
 const nph=p=>{p=String(p).replace(/\D/g,"");if(p.startsWith("0"))p="62"+p.slice(1);return p};
-const isMaster=()=>!!me&&me.is_master===true;
-const roleLabel=u=>u?.is_master===true?"Master Admin":({sensei:"Sensei",admin:"Admin",tester:"Tester"}[u?.role]||"Sensei");
+// The legacy production schema has no is_master column yet. Until the reviewed
+// master-role migration is applied in a dedicated Preview database, identify the
+// existing owner by the immutable Auth UUID AND the matching profile email.
+const YG_OWNER_ID="860c2a25-63cb-4b86-af1b-f57e19a585ed";
+const YG_OWNER_EMAIL="roni97676@gmail.com";
+const isOwnerUser=u=>!!u&&u.id===YG_OWNER_ID&&String(u.email||"").trim().toLowerCase()===YG_OWNER_EMAIL;
+const isMasterUser=u=>!!u&&(u.is_master===true||isOwnerUser(u));
+const isMaster=()=>isMasterUser(me);
+const roleLabel=u=>isMasterUser(u)?"Master Admin":({sensei:"Sensei",admin:"Admin",tester:"Tester"}[u?.role]||"Sensei");
 const can=p=>me&&(isMaster()||(me.perms&&me.perms[p]));
 const cls=id=>S.classes[id]?.name||"-";
 function toast(t){const e=$("#toast");e.textContent=t;e.style.display="block";clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display="none",2800)}
@@ -249,10 +256,10 @@ const adm=()=>!!me&&isMaster()&&S.users[me.email]?.active!==false;
 const denied=t=>`<h2>${t}</h2><div class='card'><p class='bad'>Halaman ini hanya untuk Master Admin.</p></div>`;
 function sensei(m){if(!adm()){m.innerHTML=denied('Sensei & Hak Akses');return}
   const ed=window._eu;const e=ed?(ed==="_new"?{name:"",email:"",phone:"",role:"sensei",perms:{},is_master:false}:S.users[ed]):null;
-  const masterEditing=!!(e&&e.is_master===true);
+  const masterEditing=!!(e&&isMasterUser(e));
   m.innerHTML=`<h2>Sensei & Hak Akses</h2><div class="card"><button class="b" id="ua">+ Daftarkan Akun</button><p class="mu">Role hanya sebagai identitas akun. Hak akses setiap akun diatur secara individual melalui pilihan izin di bawah ini. Sensei, Admin, dan Tester menggunakan mekanisme izin yang sama.</p>
   ${e?`<div class="card"><div class="row"><input id="ue" type="email" placeholder="Email login" value="${esc(e.email||"")}" ${ed!=="_new"?"disabled":""}><input id="up" placeholder="Nomor HP" value="${esc(e.phone||"")}"><input id="un" placeholder="Nama pengguna" value="${esc(e.name)}"><input id="upw" type="password" autocomplete="new-password" placeholder="${ed==="_new"?"Password awal (min 8)":"Password baru (opsional)"}"><select id="ur" ${masterEditing?"disabled":""}><option value="sensei" ${e.role==="sensei"?"selected":""}>Sensei</option><option value="admin" ${e.role==="admin"&&!masterEditing?"selected":""}>Admin</option><option value="tester" ${e.role==="tester"?"selected":""}>Tester</option></select>${masterEditing?`<span class="tag" style="background:var(--brand)">Master Admin · akun pemilik</span>`:""}</div><div class="row">${Object.entries(PM).map(([k,v])=>`<label><input type="checkbox" data-p="${k}" ${e.perms&&e.perms[k]?"checked":""} ${masterEditing?"disabled":""}> ${v}</label>`).join("")}</div><button class="b" id="uv">Simpan</button> <button class="g" id="ux">Batal</button></div>`:""}
-  <div class="tw"><table><tr><th>Nama <span class='mu' style='font-weight:400'>(hijau = online)</span></th><th>Email</th><th>HP</th><th>Peran</th><th>Izin</th><th>Aktif</th><th></th></tr>${Object.entries(S.users).map(([email,u])=>`<tr><td>${isOn(email)?`<span title='Online' style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#5b9a70;margin-right:7px'></span>`:`<span title='Offline' style='display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bd);margin-right:7px'></span>`}${esc(u.name)}</td><td>${esc(email)}</td><td>${esc(u.phone||'-')}</td><td>${esc(roleLabel(u))}</td><td class="mu">${u.is_master===true?"semua":Object.keys(PM).filter(k=>u.perms&&u.perms[k]).join(", ")||"izin belum dipilih"}</td><td>${u.active===false?"Tidak":"Ya"}</td><td><button class="g" data-e="${esc(email)}">Edit</button> ${email!==me.email&&u.is_master!==true?`<button class="g" data-t="${esc(email)}">${u.active===false?"Aktifkan":"Nonaktifkan"}</button> <button class="g" data-d="${esc(email)}">Hapus</button>`:""}</td></tr>`).join('')}</table></div></div>`;
+  <div class="tw"><table><tr><th>Nama <span class='mu' style='font-weight:400'>(hijau = online)</span></th><th>Email</th><th>HP</th><th>Peran</th><th>Izin</th><th>Aktif</th><th></th></tr>${Object.entries(S.users).map(([email,u])=>`<tr><td>${isOn(email)?`<span title='Online' style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#5b9a70;margin-right:7px'></span>`:`<span title='Offline' style='display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--bd);margin-right:7px'></span>`}${esc(u.name)}</td><td>${esc(email)}</td><td>${esc(u.phone||'-')}</td><td>${esc(roleLabel(u))}</td><td class="mu">${isMasterUser(u)?"semua":Object.keys(PM).filter(k=>u.perms&&u.perms[k]).join(", ")||"izin belum dipilih"}</td><td>${u.active===false?"Tidak":"Ya"}</td><td><button class="g" data-e="${esc(email)}">Edit</button> ${email!==me.email&&!isMasterUser(u)?`<button class="g" data-t="${esc(email)}">${u.active===false?"Aktifkan":"Nonaktifkan"}</button> <button class="g" data-d="${esc(email)}">Hapus</button>`:""}</td></tr>`).join('')}</table></div></div>`;
   const invoke=async body=>{const {data,error}=await window.ygSupabase.functions.invoke('admin-users',{body});if(error)throw error;if(data?.error)throw new Error(data.error);return data};
   $('#ua').onclick=()=>{window._eu='_new';dirty=false;render()};
   m.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{window._eu=b.dataset.e;dirty=false;render()});
