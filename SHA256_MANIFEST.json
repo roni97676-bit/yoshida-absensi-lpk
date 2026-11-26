@@ -1,0 +1,57 @@
+[
+  {
+    "path": "README.txt",
+    "bytes": 3706,
+    "sha256": "19e8cf496728608578bca071978644148704f777dc5d8dcdac5da47f569bc794"
+  },
+  {
+    "path": "config.example.js",
+    "bytes": 309,
+    "sha256": "dcc011512a7e062571b6fdd93835e24646b4e15fa748433f0d19a56536fb23a0"
+  },
+  {
+    "path": "docs/AUDIT_REPORT_V2.md",
+    "bytes": 7470,
+    "sha256": "93bb32a68d5a86b825796b48d26e9d121e23977a19f35109a97e56dd66784ed2"
+  },
+  {
+    "path": "docs/PREVIEW_TEST_CHECKLIST.md",
+    "bytes": 2993,
+    "sha256": "81e2f184b829ac28aa9b22a14f0146f835cfee16f781b50947439e9e3999156d"
+  },
+  {
+    "path": "docs/STATIC_VALIDATION.md",
+    "bytes": 1505,
+    "sha256": "aa8f06a48499ad7eaa05f64bf7c429e71f8f8c58a4384b459466193c1f2d412d"
+  },
+  {
+    "path": "index.html",
+    "bytes": 131495,
+    "sha256": "da2e69a0b4ab914066a1fedbaa869657c2b60f655bcfc45612372050f5e82ce5"
+  },
+  {
+    "path": "supabase/diagnostics/00_preview_readonly_audit_snapshot.sql",
+    "bytes": 6236,
+    "sha256": "421fe40bd60ab28af5c66b04a7887dc67e01808eca9127f89937b33a077a698c"
+  },
+  {
+    "path": "supabase/functions/admin-users/index.ts",
+    "bytes": 8214,
+    "sha256": "4c09553e185bfe75fdc326cc78f4f3046c391b55ede77389c84741d1a69d78d8"
+  },
+  {
+    "path": "supabase/migrations/20261126_tahap2_permission_hardening_REVIEW_v1.sql",
+    "bytes": 16276,
+    "sha256": "c4f97edaeae06432df1dedb1e840c3e7024c7501e2dbc63f66f1e6effe10649f"
+  },
+  {
+    "path": "supabase/migrations/20261126_tahap2_roles_master_REVIEWED_v2.sql",
+    "bytes": 5671,
+    "sha256": "bcb622b56c997c0c130c978b7eb9fd61d735984562beff5eb60cc50f27a0a570"
+  },
+  {
+    "path": "supabase-adapter.js",
+    "bytes": 4067,
+    "sha256": "892f1f30d8e4fe59916cc77600d7c2cc928f38d6f3acfe0c1e83a9bbe79f51e3"
+  }
+]
