@@ -1112,8 +1112,21 @@ function nilaiv3(m){
  m.querySelectorAll('[data-s]').forEach(el=>el.oninput=()=>{const n=el.dataset.s;f.sel[n]=el.value;el.closest('tr').querySelector('[data-c]').checked=true;$('#cn').textContent='Dipilih: '+cn()+' siswa'});
  $('#gs').onclick=async()=>{const es=Object.entries(f.sel);if(!es.length){toast('Pilih minimal satu siswa.');return}
   const bad=es.filter(([,v])=>v===''||isNaN(Number(v))||Number(v)<minScore||Number(v)>maxScore);if(bad.length){toast('Isi nilai '+scoreRange+' untuk semua siswa yang dipilih ('+bad.length+' belum atau di luar batas).');return}
-  try{await Promise.all(es.map(([n,v])=>{const id=window._gid&&S.grades[window._gid]?.nis===n?window._gid:Date.now()+'_'+Math.random().toString(36).slice(2,6);return db.collection('grades').doc(id).set({date:f.date,nis:n,category:f.cat,type:f.type,title:f.title,score:Number(v),note:f.note,by:me.name,byPhone:me.phone,byId:me.id,at:new Date().toISOString()})}));
-   await log('nilai',es.length+' nilai '+f.cat+(f.title?' ('+f.title+')':'')+' - '+clsB(f.cid));f.sel={};f.note='';window._gid=null;dirty=false;toast(es.length+' nilai tersimpan.');render()}catch(e){toast('Gagal: '+(e.message||e.code))}};
+  try{
+   if(window._gid){
+    const id=window._gid,old=S.grades[id];
+    if(!old){toast('Catatan yang akan diedit tidak ditemukan. Muat ulang halaman lalu coba lagi.');return}
+    if(es.length!==1||es[0][0]!==old.nis){toast('Mode edit hanya boleh memperbarui siswa pada catatan asli. Batalkan edit jika ingin menilai siswa lain.');return}
+    const [n,v]=es[0];
+    const updated={...old,date:f.date,nis:old.nis,category:f.cat,type:f.type,title:f.title,score:Number(v),note:f.note,updatedAt:new Date().toISOString()};
+    await db.collection('grades').doc(id).set(updated);
+    await log('nilai','Edit catatan '+(S.students[old.nis]?.name||old.nis)+' - '+f.cat+(f.title?' ('+f.title+')':''));
+    f.sel={};f.note='';window._gid=null;dirty=false;toast('Catatan nilai berhasil diperbarui.');render();
+   }else{
+    await Promise.all(es.map(([n,v])=>{const id=Date.now()+'_'+Math.random().toString(36).slice(2,8);return db.collection('grades').doc(id).set({date:f.date,nis:n,category:f.cat,type:f.type,title:f.title,score:Number(v),note:f.note,by:me.name,byPhone:me.phone,byId:me.id,at:new Date().toISOString()})}));
+    await log('nilai',es.length+' nilai '+f.cat+(f.title?' ('+f.title+')':'')+' - '+clsB(f.cid));f.sel={};f.note='';dirty=false;toast(es.length+' nilai tersimpan.');render();
+   }
+  }catch(e){toast('Gagal: '+(e.message||e.code))}};
  if($('#gc'))$('#gc').onclick=()=>{window._gid=null;f.sel={};dirty=false;render()};
  m.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>{const g=S.grades[b.dataset.ge],c=S.classes[S.students[g.nis]?.classId];Object.assign(f,{date:g.date,cat:g.category,type:g.type,title:g.title||'',note:g.note||'',cid:S.students[g.nis]?.classId||f.cid,b:c?(noB(c)?'_none':c.batchId):f.b,sel:{[g.nis]:String(g.score)}});window._gid=b.dataset.ge;dirty=false;render()});
  m.querySelectorAll('[data-gx]').forEach(b=>b.onclick=async()=>{dirty=false;if(await confirmX('Hapus nilai ini?','Hapus')){const g=S.grades[b.dataset.gx];await db.collection('grades').doc(b.dataset.gx).delete();await log('nilai','Hapus '+(S.students[g.nis]?.name||g.nis)+' '+g.category+' '+g.score)}})}
