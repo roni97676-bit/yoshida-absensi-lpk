@@ -772,7 +772,7 @@ function siswa(m){
    if(!joined&&!ended){toast('Isi minimal satu tanggal yang ingin diubah.');return}
    if(!fb&&!fc){toast('Pilih Batch atau Kelas terlebih dahulu.');return}
    if(!list.length){toast('Tidak ada siswa pada filter ini.');return}
-   const invalid=list.filter(([n,st])=>(joined&&st.ended&&joined>st.ended)||(ended&&(joined||st.joined)&&ended<(joined||st.joined)));
+   const invalid=list.filter(([n,st])=>{const finalJoined=joined||st.joined||'',finalEnded=ended||st.ended||'';return !!(finalJoined&&finalEnded&&finalJoined>finalEnded)});
    if(invalid.length){toast('Rentang tanggal tidak valid untuk: '+invalid.slice(0,3).map(([n])=>n).join(', ')+(invalid.length>3?' dan lainnya':''));return}
    const scope=fc?'Kelas '+(S.classes[fc]?.name||fc):'Batch '+(S.batches[fb]?.name||S.batches[fb]?.label||fb);
    if(!await confirmX('Ubah tanggal massal?',`<p>${scope}: ${list.length} siswa akan diperbarui.</p><p>Periode mulai: <b>${joined||'tetap'}</b><br>Tanggal selesai: <b>${ended||'tetap'}</b></p><p>Periksa kembali sebelum menyimpan.</p>`,'Simpan perubahan'))return;
