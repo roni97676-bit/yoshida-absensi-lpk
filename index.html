@@ -860,8 +860,8 @@ const addD=(d,n)=>new Date(Date.parse(d)+n*864e5).toISOString().slice(0,10);
 const addM=(d,n)=>{const x=new Date(Date.parse(d));x.setUTCMonth(x.getUTCMonth()+n);return addD(x.toISOString().slice(0,10),-1)};
 const inM=(d,mo)=>!mo||(typeof mo==='string'?d.startsWith(mo):(d>=mo.from&&d<=mo.to));
 function laporan(m){
- const r=window._lr=window._lr||{t:'gab',cid:'',batch:'',m:'bulan',mo:month(),len:4,q:''};
- if(!r.m)r.m='bulan';if(!r.len)r.len=4;
+ const r=window._lr=window._lr||{t:'gab',cid:'',batch:'',m:'bulan',mo:month(),len:4,q:'',selected:{}};
+ if(!r.m)r.m='bulan';if(!r.len)r.len=4;if(!r.selected)r.selected={};
  const ds=[...Object.values(S.att).map(a=>a.date),...Object.values(S.grades).map(g=>g.date)].sort(),k1=pk(today()),k0=ds.length?Math.min(pk(ds[0]),k1):k1;
  const wk=[];for(let k=k1;k>=Math.max(k0,k1-60);k--)wk.push(k);
  if(r.w===undefined||!wk.includes(r.w))r.w=k1;
@@ -887,6 +887,7 @@ function laporan(m){
  const head=r.t==='abs'?['NIS','Nama','Kelas','H','I','S','A','L','% Hadir','Kategori']:r.t==='nilai'?['NIS','Nama','Kelas',...CATS,'Rata-rata','Predikat']:['NIS','Nama','Kelas','H','I','S','A','L','% Hadir','Rata nilai','Predikat','Tren','Status'];
  const row=x=>{const a=x.a,b=[x.n,x.s.name,cls(x.s.classId)],pc=a.pct===null?'-':a.pct+'%';return r.t==='abs'?[...b,a.at.H,a.at.I,a.at.S,a.at.A,a.at.L,pc,catT(a.pct)]:r.t==='nilai'?[...b,...CATS.map(c=>a.cats[c]??'-'),a.av??'-',gl(a.av)]:[...b,a.at.H,a.at.I,a.at.S,a.at.A,a.at.L,pc,a.av??'-',gl(a.av),a.tr,a.st]};
  const rows=A.map(row),tH=A.reduce((q,x)=>q+x.a.at.H,0),tD=A.reduce((q,x)=>q+x.a.at.H+x.a.at.I+x.a.at.S+x.a.at.A,0),sc=A.flatMap(x=>x.a.G.map(g=>+g.score));
+ const selected=A.filter(x=>!!r.selected[x.n]),selectedRows=selected.map(row),allSelected=A.length>0&&selected.length===A.length;
  const TT={abs:'Laporan Kehadiran Siswa',nilai:'Laporan Penilaian Siswa',gab:'Laporan Kehadiran dan Penilaian Siswa'}[r.t];
  const sub='Batch: '+(r.batch?bName(r.batch):'Semua Batch')+'  |  Kelas: '+(r.cid?cls(r.cid):'Semua Kelas')+'  |  Periode: '+pl2+'  |  Siswa: '+A.length+'  |  Rata-rata kehadiran: '+(tD?Math.round(tH/tD*100)+'%':'-')+'  |  Rata-rata nilai: '+(avg(sc)??'-');
  const op=(v,l,s)=>`<option value='${esc(v)}' ${s?'selected':''}>${esc(l)}</option>`;
@@ -906,15 +907,27 @@ function laporan(m){
  <button class='g' id='pr'>Cetak</button>${can('export')?`<button class='b' id='pd'>Unduh PDF</button>`:''}
  </div>
  <p class='mu'>${esc(sub)}<br>Persen kehadiran = Hadir / (H+I+S+A). Libur tidak dihitung. Standar minimum 80%.</p>
- <div class='tw'><table><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${rows.map(x=>`<tr>${x.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan='${head.length}' class='mu'>Tidak ada siswa yang cocok dengan filter.</td></tr>`}</table></div></div>`;
+ <div class='row' style='gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0'>
+  <label style='display:flex;align-items:center;gap:7px'><input type='checkbox' id='rselectall' ${allSelected?'checked':''}> Pilih semua siswa yang tampil</label>
+  <span class='mu' id='rselectedcount'>${selected.length} siswa dipilih</span>
+  <button class='g' id='rprintselected' ${selected.length?'':'disabled'}>Cetak pilihan</button>
+  <button class='b' id='rpdfselected' ${selected.length&&can('export')?'':'disabled'}>Unduh PDF pilihan</button>
+ </div>
+ <div class='tw'><table><tr><th style='width:42px'>Pilih</th>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr>${A.map((x,i)=>`<tr><td><input type='checkbox' class='rstudentcheck' data-rnis='${esc(x.n)}' ${r.selected[x.n]?'checked':''} aria-label='Pilih ${esc(x.s.name)}'></td>${rows[i].map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')||`<tr><td colspan='${head.length+1}' class='mu'>Tidak ada siswa yang cocok dengan filter.</td></tr>`}</table></div></div>`;
+ const updateSelectionUI=()=>{const n=A.filter(x=>!!r.selected[x.n]).length;const count=$('#rselectedcount'),all=$('#rselectall'),pr=$('#rprintselected'),pd=$('#rpdfselected');if(count)count.textContent=n+' siswa dipilih';if(all)all.checked=A.length>0&&n===A.length;if(pr)pr.disabled=!n;if(pd)pd.disabled=!n||!can('export')};
+ $('#rselectall').onchange=e=>{A.forEach(x=>{if(e.target.checked)r.selected[x.n]=true;else delete r.selected[x.n]});m.querySelectorAll('.rstudentcheck').forEach(x=>x.checked=e.target.checked);updateSelectionUI()};
+ m.querySelectorAll('.rstudentcheck').forEach(x=>x.onchange=e=>{if(e.target.checked)r.selected[e.target.dataset.rnis]=true;else delete r.selected[e.target.dataset.rnis];updateSelectionUI()});
+ const printSelected=()=>{const chosen=A.filter(x=>!!r.selected[x.n]);if(!chosen.length){toast('Pilih minimal satu siswa.');return}const body=chosen.map(x=>row(x));const w=window.open('','_blank');if(!w){toast('Izinkan pop-up untuk mencetak laporan.');return}w.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>${esc(TT)}</title><style>body{font:12px Arial,sans-serif;padding:24px;color:#1f2937}h1{font-size:18px}p{color:#475569}table{border-collapse:collapse;width:100%;margin-top:16px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:left}th{background:#e8eef5}@media print{button{display:none}}</style></head><body><h1>LPK YOSHIDA GAKKOU</h1><h2>${esc(TT)}</h2><p>${esc(sub)} | Siswa dipilih: ${chosen.length}</p><table><thead><tr>${head.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${body.map(x=>`<tr>${x.map(c=>`<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody></table><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()};
+ $('#rprintselected').onclick=printSelected;
+ $('#rpdfselected').onclick=()=>{const chosen=A.filter(x=>!!r.selected[x.n]);if(!chosen.length){toast('Pilih minimal satu siswa.');return}const subSel=sub+' | Siswa dipilih: '+chosen.length;pdf(TT,subSel,[{head,rows:chosen.map(row)}],'Laporan-Siswa-Terpilih-'+r.t+'.pdf','landscape')};
  const apply=()=>{dirty=false;render()};
- $('#rt').onchange=e=>{r.t=e.target.value;apply()};
- $('#rbatch').onchange=e=>{r.batch=e.target.value;r.cid='';apply()};
- $('#rk').onchange=e=>{r.cid=e.target.value;apply()};
- $('#rm').onchange=e=>{r.m=e.target.value;if(r.m==='rentang'){r.from=rangeStart;r.to=rangeEnd}apply()};
- $('#rq').oninput=e=>{r.q=e.target.value;const pos=e.target.selectionStart;render();const n=$('#rq');if(n){n.focus();n.setSelectionRange(pos,pos)}};
- $('#rfrom').onchange=e=>{r.from=e.target.value;r.m='rentang';apply()};
- $('#rto').onchange=e=>{r.to=e.target.value;r.m='rentang';apply()};
+ $('#rt').onchange=e=>{r.t=e.target.value;r.selected={};apply()};
+ $('#rbatch').onchange=e=>{r.batch=e.target.value;r.cid='';r.selected={};apply()};
+ $('#rk').onchange=e=>{r.cid=e.target.value;r.selected={};apply()};
+ $('#rm').onchange=e=>{r.m=e.target.value;r.selected={};if(r.m==='rentang'){r.from=rangeStart;r.to=rangeEnd}apply()};
+ $('#rq').oninput=e=>{r.q=e.target.value;r.selected={};const pos=e.target.selectionStart;render();const n=$('#rq');if(n){n.focus();n.setSelectionRange(pos,pos)}};
+ $('#rfrom').onchange=e=>{r.from=e.target.value;r.m='rentang';r.selected={};apply()};
+ $('#rto').onchange=e=>{r.to=e.target.value;r.m='rentang';r.selected={};apply()};
  $('#pr').onclick=()=>print();
  if($('#pd'))$('#pd').onclick=()=>pdf(TT,sub,[{head,rows}],'Laporan-'+r.t+'-'+r.m+'.pdf','landscape')
 }
