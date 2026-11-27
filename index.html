@@ -625,6 +625,52 @@ nav .navuser{margin:18px 3px 7px;padding:13px 10px 5px;border-top:1px solid #fff
   }
 }
 
+
+/* REVISI TAHAP 5 — Dashboard mini calendar design preview */
+.yg-cal-launch{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--bd);background:var(--card);color:var(--pr);border-radius:11px;padding:8px 12px;font:600 13px system-ui;cursor:pointer;box-shadow:var(--shadow);white-space:nowrap}
+.yg-cal-launch .yg-cal-icon{width:28px;height:28px;border-radius:8px;background:var(--brand-soft);display:grid;place-items:center;font-size:16px}
+.yg-cal-launch:hover{border-color:var(--brand);background:var(--brand-soft)}
+.yg-cal-overlay{position:fixed;inset:0;background:rgba(12,25,37,.32);z-index:70;display:flex;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .18s ease}
+.yg-cal-overlay.open{opacity:1;pointer-events:auto}
+.yg-cal-panel{width:min(460px,100%);height:100%;background:var(--card);border-left:1px solid var(--bd);box-shadow:-16px 0 48px rgba(20,35,48,.18);padding:22px;overflow:auto;transform:translateX(22px);transition:transform .2s ease}
+.yg-cal-overlay.open .yg-cal-panel{transform:translateX(0)}
+.yg-cal-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+.yg-cal-head h3{margin:0;color:var(--pr);font:600 21px Georgia,serif}
+.yg-cal-head p{margin:4px 0 0;color:var(--mu);font-size:12px}
+.yg-cal-iconbtn{width:34px;height:34px;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:9px;cursor:pointer;font-size:17px}
+.yg-cal-monthbar{display:flex;align-items:center;justify-content:space-between;margin:10px 0 12px}
+.yg-cal-monthbar strong{font:600 16px Georgia,serif;color:var(--pr)}
+.yg-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.yg-cal-week{font-size:10px;font-weight:700;color:var(--mu);padding:7px 0}
+.yg-cal-day{position:relative;min-height:43px;border:1px solid transparent;background:transparent;border-radius:9px;color:var(--tx);cursor:pointer;font:500 12px system-ui}
+.yg-cal-day:hover{background:var(--pr2)}
+.yg-cal-day.muted{color:#aab3bb}
+.yg-cal-day.today{border-color:var(--brand);font-weight:800}
+.yg-cal-day.selected{background:var(--pr);color:#fff;font-weight:800}
+.yg-cal-day.has-event:after{content:'';position:absolute;bottom:4px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--brand);transform:translateX(-50%)}
+.yg-cal-day.selected.has-event:after{background:#fff}
+.yg-cal-legend{display:flex;gap:14px;flex-wrap:wrap;color:var(--mu);font-size:11px;margin:9px 0 18px}
+.yg-cal-legend span{display:flex;align-items:center;gap:5px}.yg-cal-dot{width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.yg-cal-agenda{border-top:1px solid var(--bd);padding-top:15px}
+.yg-cal-agenda-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.yg-cal-agenda-head h4{margin:0;color:var(--pr);font-size:14px}
+.yg-cal-add{border:0;background:var(--pr);color:#fff;border-radius:9px;padding:8px 11px;font:600 12px system-ui;cursor:pointer}
+.yg-cal-item{border:1px solid var(--bd);border-radius:11px;padding:11px 12px;margin:8px 0;background:var(--bg)}
+.yg-cal-item-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.yg-cal-item b{font-size:13px;color:var(--tx)}.yg-cal-item p{margin:5px 0 0;color:var(--mu);font-size:12px;white-space:pre-wrap}
+.yg-cal-type{font-size:10px;font-weight:700;color:var(--brand);background:var(--brand-soft);border-radius:99px;padding:3px 8px}
+.yg-cal-actions{display:flex;gap:5px}.yg-cal-actions button{border:1px solid var(--bd);background:var(--card);color:var(--mu);border-radius:7px;padding:4px 7px;font-size:11px;cursor:pointer}
+.yg-cal-empty{padding:18px 10px;text-align:center;color:var(--mu);font-size:12px;background:var(--bg);border-radius:10px}
+.yg-cal-form{margin-top:14px;padding:14px;border:1px solid var(--bd);border-radius:12px;background:var(--bg)}
+.yg-cal-form h4{margin:0 0 10px;color:var(--pr);font-size:14px}
+.yg-cal-form label{display:block;font-size:11px;font-weight:700;color:var(--mu);margin:9px 0 4px}
+.yg-cal-form input,.yg-cal-form select,.yg-cal-form textarea{width:100%;background:var(--card);font-size:13px}
+.yg-cal-form textarea{min-height:66px;resize:vertical}
+.yg-cal-date-field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px;align-items:center}.yg-cal-date-field #ygCalDateDisplay{font-weight:600;color:var(--tx)}.yg-cal-date-field #ygCalDate{grid-column:1/-1;width:100%;padding:7px;font-size:12px}.yg-cal-date-field button{white-space:nowrap}
+.yg-cal-form-foot{display:flex;justify-content:flex-end;gap:7px;margin-top:12px}
+.yg-cal-demo-note{margin-top:16px;padding:10px 12px;border-radius:9px;background:var(--brand-soft);color:var(--brand);font-size:11px;line-height:1.5}
+@media(max-width:600px){.yg-cal-panel{padding:17px}.yg-cal-launch .yg-cal-label{display:none}.yg-cal-day{min-height:40px}}
+
 </style>
 </head>
 <body>
@@ -658,7 +704,7 @@ async function log(action,detail){try{await db.collection("audit").doc(Date.now(
 function sub(name,cb,q){const c=q||db.collection(name);return c.onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());cb(o);ok[name]=1;schedule()},e=>{console.error(name,e);ok[name]=1;schedule()})}
 let raf;function schedule(){cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{if(me&&dirty&&!ok._force)return;render()})}
 let dataUnsubs=[],sessionStarted=false,heartbeatTimer=null;
-function stopDataSubscriptions(){dataUnsubs.forEach(fn=>{try{if(typeof fn==='function')fn()}catch(e){}});dataUnsubs=[];sessionStarted=false;Object.keys(ok).forEach(k=>delete ok[k]);S={users:{},classes:{},students:{},att:{},grades:{},presence:{},batches:{},audit:[]}}
+function stopDataSubscriptions(){dataUnsubs.forEach(fn=>{try{if(typeof fn==='function')fn()}catch(e){}});dataUnsubs=[];sessionStarted=false;Object.keys(ok).forEach(k=>delete ok[k]);S={users:{},classes:{},students:{},att:{},grades:{},presence:{},batches:{},audit:[]};window._ygCalEvents=[];window._ygCalLoaded=false;window._ygCalState=null}
 function startSession(){
   if(sessionStarted)return;
   sessionStarted=true;window._gr=Date.now();beat();
@@ -668,6 +714,11 @@ function startSession(){
   dataUnsubs.push(sub("students",o=>S.students=o));
   dataUnsubs.push(sub("attendance",o=>S.att=o));
   dataUnsubs.push(sub("grades",o=>S.grades=o));
+  dataUnsubs.push(db.collection('calendar').onSnapshot(s=>{
+    window._ygCalEvents=s.docs.map(d=>({id:d.id,...d.data()}));window._ygCalLoaded=true;
+    const c=window._ygCalState;
+    if(c){c.events=window._ygCalEvents;c.loading=false;if(c.open&&!c.form&&view==='dash'){const root=$('#main');if(root){const old=$('#ygCalOverlay');if(old){old.remove();root.insertAdjacentHTML('beforeend',ygCalPanelHTML());bindYgCalendarDemo(root)}}}}
+  },e=>{console.error('calendar',e);window._ygCalLoaded=true;window._ygCalError=e.message||'Gagal memuat kalender';const c=window._ygCalState;if(c)c.loading=false;if(c?.open&&!c.form&&view==='dash')render()}));
   dataUnsubs.push(db.collection('presence').onSnapshot(s=>{const o={};s.docs.forEach(d=>o[d.id]=d.data());S.presence=o;if(view==='sensei'&&me&&!dirty)render()},e=>console.error('presence',e)));
   dataUnsubs.push(db.collection("audit").orderBy("at","desc").limit(100).onSnapshot(s=>{S.audit=s.docs.map(d=>d.data());ok.audit=1;schedule()},e=>{console.error('audit',e);ok.audit=1;schedule()}));
   if(!heartbeatTimer)heartbeatTimer=setInterval(()=>{if(me){beat();if(view==='sensei'&&!dirty)render()}},45000);
@@ -927,6 +978,61 @@ const FUJI = `<img class="sidebar-scenic" src="sidebar-scenic-bottom.png" alt="G
 function ph(t,s){return `<div class='ph'><div><h2>${t}</h2><div class='mu'>${s}</div></div><div class='phr'><div class='upd'><span class='mu'>Terakhir diperbarui</span><b>${new Date().toLocaleString('id-ID',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'})}</b></div><div class='usr'><span class='av'>${esc((me.name||'?').trim().charAt(0).toUpperCase())}</span><div><b>${esc(me.name)}</b><div class='mu' style='font-size:12px'>${roleLabel(me)}</div></div></div></div></div>`}
 const stp=s=>s==='PERLU PERHATIAN KHUSUS'?"<span class='pill pr'>Perhatian Khusus</span>":s==='PERLU EVALUASI'?"<span class='pill pa'>Perlu Evaluasi</span>":s==='BERKEMBANG POSITIF'?"<span class='pill pg'>Berkembang</span>":"<span class='pill pg'>Baik</span>";
 const why=a=>{const w=[];if(a.at.A)w.push(a.at.A+' kali alpa');if(a.pct!==null&&a.pct<80)w.push('kehadiran '+fm(a.pct)+'%');if(a.av!==null&&a.av<70)w.push('nilai rata-rata '+fm(a.av));if(a.tr==='Turun')w.push('nilai menurun');return w.join(', ')||'-'};
+
+/* Calendar panel — shared Supabase calendar with Realtime synchronization. */
+function ygCalDate(d){return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-')}
+function ygCalParse(k){const [y,m,d]=k.split('-').map(Number);return new Date(y,m-1,d)}
+function ygCalLabel(k,opt={weekday:'long',day:'numeric',month:'long',year:'numeric'}){return ygCalParse(k).toLocaleDateString('id-ID',opt)}
+function ygCalState(){
+ if(!window._ygCalState){const base=today(),d=ygCalParse(base);
+  window._ygCalState={open:false,selected:base,month:new Date(d.getFullYear(),d.getMonth(),1),form:false,editId:null,events:window._ygCalEvents||[],loading:!window._ygCalLoaded};
+ }
+ const c=window._ygCalState;
+ c.events=window._ygCalEvents||[];
+ c.loading=!window._ygCalLoaded;
+ return c;
+}
+function ygCalPanelHTML(){
+ const c=ygCalState(),m=new Date(c.month.getFullYear(),c.month.getMonth(),1),first=(m.getDay()+6)%7,start=new Date(m);start.setDate(1-first);
+ const days=Array.from({length:42},(_,i)=>{const d=new Date(start);d.setDate(start.getDate()+i);const k=ygCalDate(d),other=d.getMonth()!==m.getMonth(),todayK=today(),has=c.events.some(e=>e.date===k);return `<button type="button" class="yg-cal-day ${other?'muted':''} ${k===todayK?'today':''} ${k===c.selected?'selected':''} ${has?'has-event':''}" data-cal-day="${k}" aria-label="${ygCalLabel(k)}">${d.getDate()}</button>`}).join('');
+ const items=c.events.filter(e=>e.date===c.selected).sort((a,b)=>(a.time||'').localeCompare(b.time||''));
+ const form=c.form?(()=>{const e=c.events.find(x=>x.id===c.editId)||{date:c.selected,time:'',title:'',type:'Agenda',note:''};const types=['Agenda','Tugas','Rapat','Pengingat','Ujian','Libur Tanggal merah','Libur Lebaran','Libur'];return `<form class="yg-cal-form" id="ygCalForm"><h4>${c.editId?'Edit agenda':'Tambah agenda / memo'}</h4><label>Tanggal</label><div class="yg-cal-date-field"><input type="text" id="ygCalDateDisplay" readonly value="${esc(ygCalLabel(e.date,{day:'numeric',month:'long',year:'numeric'}))}" aria-label="Tanggal dalam format Indonesia"><button type="button" class="g" id="ygCalPickDate">Pilih tanggal</button><input type="date" id="ygCalDate" name="date" required value="${esc(e.date)}" aria-label="Pilih tanggal"></div><label>Judul</label><input name="title" required maxlength="100" placeholder="Contoh: Rapat Sensei" value="${esc(e.title)}"><label>Jenis</label><select name="type">${types.map(t=>`<option value="${esc(t)}" ${e.type===t?'selected':''}>${esc(t)}</option>`).join('')}</select><label>Waktu (opsional)</label><input type="time" name="time" value="${esc(e.time||'')}"><label>Catatan</label><textarea name="note" maxlength="500" placeholder="Detail agenda atau pengingat">${esc(e.note||'')}</textarea><div class="yg-cal-form-foot"><button type="button" class="g" id="ygCalCancel">Batal</button><button class="b" type="submit">Simpan</button></div></form>`})():'';
+ return `<div class="yg-cal-overlay ${c.open?'open':''}" id="ygCalOverlay" aria-hidden="${!c.open}"><section class="yg-cal-panel" role="dialog" aria-modal="true" aria-label="Kalender dan agenda"><div class="yg-cal-head"><div><h3>Kalender & Agenda</h3><p>Jadwal bersama Yoshida Gakkou</p></div><button type="button" class="yg-cal-iconbtn" id="ygCalClose" aria-label="Tutup">×</button></div><div class="yg-cal-monthbar"><button type="button" class="yg-cal-iconbtn" id="ygCalPrev" aria-label="Bulan sebelumnya">‹</button><strong>${m.toLocaleDateString('id-ID',{month:'long',year:'numeric'})}</strong><button type="button" class="yg-cal-iconbtn" id="ygCalNext" aria-label="Bulan berikutnya">›</button></div><div class="yg-cal-grid"><div class="yg-cal-week">SEN</div><div class="yg-cal-week">SEL</div><div class="yg-cal-week">RAB</div><div class="yg-cal-week">KAM</div><div class="yg-cal-week">JUM</div><div class="yg-cal-week">SAB</div><div class="yg-cal-week">MIN</div>${days}</div><div class="yg-cal-legend"><span><i class="yg-cal-dot"></i>Ada agenda</span><span>Lingkaran: hari ini</span></div><div class="yg-cal-agenda"><div class="yg-cal-agenda-head"><h4>${ygCalLabel(c.selected)}</h4><button type="button" class="yg-cal-add" id="ygCalAdd">＋ Tambah</button></div>${c.loading?'<div class="yg-cal-empty">Memuat agenda dari database…</div>':(window._ygCalError?'<div class="yg-cal-empty">Kalender gagal dimuat. Periksa koneksi dan izin akses.</div>':'')}${items.map(e=>`<article class="yg-cal-item"><div class="yg-cal-item-top"><b>${e.time?esc(e.time)+' · ':''}${esc(e.title)}</b><span class="yg-cal-type">${esc(e.type)}</span></div>${e.note?`<p>${esc(e.note)}</p>`:''}<div class="yg-cal-actions"><button type="button" data-cal-edit="${esc(e.id)}">Edit</button><button type="button" data-cal-delete="${esc(e.id)}">Hapus</button></div></article>`).join('')||'<div class="yg-cal-empty">Belum ada agenda pada tanggal ini.</div>'}${form}</div><div class="yg-cal-demo-note"><b>Kalender bersama.</b> Agenda tersimpan di database Yoshida Gakkou dan disinkronkan untuk semua Sensei aktif.</div></section></div>`;
+}
+function bindYgCalendarDemo(m){
+ const c=ygCalState();
+ const draw=()=>{const old=$('#ygCalOverlay');if(old)old.remove();m.insertAdjacentHTML('beforeend',ygCalPanelHTML());bind();};
+ const bind=()=>{
+  const overlay=$('#ygCalOverlay');if(!overlay)return;
+  $('#ygCalClose').onclick=()=>{c.open=false;c.form=false;draw()};overlay.addEventListener('click',e=>{if(e.target===overlay){c.open=false;c.form=false;draw()}});
+  $('#ygCalPrev').onclick=()=>{c.month=new Date(c.month.getFullYear(),c.month.getMonth()-1,1);draw()};$('#ygCalNext').onclick=()=>{c.month=new Date(c.month.getFullYear(),c.month.getMonth()+1,1);draw()};
+  overlay.querySelectorAll('[data-cal-day]').forEach(b=>b.onclick=()=>{c.selected=b.dataset.calDay;const d=ygCalParse(c.selected);c.month=new Date(d.getFullYear(),d.getMonth(),1);c.form=false;c.editId=null;draw()});
+  $('#ygCalAdd').onclick=()=>{c.form=true;c.editId=null;draw()};$('#ygCalCancel')?.addEventListener('click',()=>{c.form=false;c.editId=null;draw()});
+  $('#ygCalPickDate')?.addEventListener('click',()=>{const d=$('#ygCalDate');if(!d)return;try{if(d.showPicker)d.showPicker();else{d.focus();d.click()}}catch(_){d.focus();d.click()}});
+  $('#ygCalDate')?.addEventListener('change',e=>{const v=e.target.value,display=$('#ygCalDateDisplay');if(display&&v)display.value=ygCalLabel(v,{day:'numeric',month:'long',year:'numeric'})});
+  overlay.querySelectorAll('[data-cal-edit]').forEach(b=>b.onclick=()=>{c.form=true;c.editId=b.dataset.calEdit;draw()});
+  overlay.querySelectorAll('[data-cal-delete]').forEach(b=>b.onclick=async()=>{
+   const id=b.dataset.calDelete,e=c.events.find(x=>x.id===id);if(!e||!confirm('Hapus agenda ini dari kalender bersama?'))return;
+   try{await db.collection('calendar').doc(id).delete();window._ygCalEvents=(window._ygCalEvents||[]).filter(x=>x.id!==id);c.events=window._ygCalEvents;await log('kalender','Hapus agenda: '+e.title);toast('Agenda berhasil dihapus.');draw()}
+   catch(err){toast('Gagal menghapus agenda: '+(err.message||err.code||''))}
+  });
+  $('#ygCalForm')?.addEventListener('submit',async e=>{
+   e.preventDefault();const f=new FormData(e.currentTarget),v={date:String(f.get('date')),title:String(f.get('title')).trim(),type:String(f.get('type')),time:String(f.get('time')||''),note:String(f.get('note')||'').trim()};if(!v.title)return;
+   const oldEvent=c.editId?c.events.find(x=>x.id===c.editId):null;
+   const id=c.editId||('cal_'+Date.now()+'_'+Math.random().toString(36).slice(2,9));
+   const payload={...v,createdAt:oldEvent?.createdAt||new Date().toISOString(),createdBy:oldEvent?.createdBy||me?.name||'',createdById:oldEvent?.createdById||me?.id||'',updatedAt:new Date().toISOString(),updatedBy:me?.name||'',updatedById:me?.id||''};
+   try{
+    await db.collection('calendar').doc(id).set(payload);
+    const item={id,...payload};window._ygCalEvents=[...(window._ygCalEvents||[]).filter(x=>x.id!==id),item];c.events=window._ygCalEvents;
+    c.selected=v.date;const d=ygCalParse(v.date);c.month=new Date(d.getFullYear(),d.getMonth(),1);c.form=false;c.editId=null;
+    await log('kalender',(oldEvent?'Edit':'Tambah')+' agenda: '+v.title);toast(oldEvent?'Agenda berhasil diperbarui.':'Agenda berhasil disimpan.');draw();
+   }catch(err){toast('Gagal menyimpan agenda: '+(err.message||err.code||''))}
+  });
+ };
+ const open=$('#ygCalOpen');if(open)open.onclick=()=>{c.open=true;draw()};
+ if(c.open)draw();
+}
+
 function dash4(m){
  const F=window._D=window._D||{p:{k:'7d'},b:'',c:'',rb:'',rc:'',all:false};
  if(F.b&&F.b!=='_none'&&!S.batches?.[F.b])F.b='';if(F.c&&!S.classes[F.c])F.c='';if(F.rc&&!S.classes[F.rc])F.rc='';
@@ -945,11 +1051,13 @@ function dash4(m){
  let g0=0;const seg=['H','I','S','A'].map(k=>{const a=g0,b=g0+(dn?cnt[k]/dn*100:0);g0=b;return `var(--${k}) ${a}% ${b}%`}).join(',');
  const card=(ic,bg,l,v,sub)=>`<div class='sc'><span class='ic' style='background:${bg}'>${ic}</span><div><small>${l}</small><b>${v}</b>${sub?`<span class='ok' style='font-size:12px'>${sub}</span>`:''}</div></div>`;
  m.innerHTML=`${ph('Dashboard','Ringkasan data akademik dan kehadiran siswa')}
+ <div class='row' style='justify-content:flex-end;margin:-5px 0 12px'><button type='button' class='yg-cal-launch' id='ygCalOpen'><span class='yg-cal-icon'>🗓️</span><span class='yg-cal-label'>Kalender & Agenda</span></button></div>
  <div class='card'><div class='tb'><div class='fld'><span>Periode</span>${perHTML(F.p,'dp')}</div><div class='fld'><span>Batch</span><select id='db'>${bOpts(F.b,'Semua batch')}</select></div><div class='fld'><span>Kelas</span><select id='dc'>${cOpts(F.b,F.c,'Semua kelas')}</select></div></div></div>
  <div class='sc5'>${card('👥','#e3eefe','Total Siswa',sc.length)}${card('✅','#dcf5e6','Siswa Aktif',nAct,sc.length?fm(Math.round(nAct/sc.length*1000)/10)+'%':'')}${card('🏫','#efe3fb','Total Kelas',nCls)}${card('🎓','#fdeccf','Total Pengguna',nSen===null?'–':nSen)}${card('📊','#d6f4f4','Rata-rata Nilai',fm(av))}</div>
  <div class='card'><div class='row' style='justify-content:space-between;margin-bottom:10px'><b style='font-size:17px'>🏫 Rekapitulasi per Kelas</b><div class='row' style='margin:0'><span class='mu'>Batch:</span><select id='rb'>${bOpts(F.rb,'Semua batch')}</select><span class='mu'>Kelas:</span><select id='rc'>${cOpts(F.rb,F.rc,'Semua kelas')}</select></div></div><div class='tw'><table><tr><th>Kelas</th><th>Batch</th><th>Siswa</th><th>Hadir</th><th>Izin</th><th>Sakit</th><th>Alpa</th><th>Libur</th><th>Kehadiran</th><th></th></tr>${rows.map(x=>`<tr><td><b>${esc(x.c.name)}</b></td><td class='mu'>${esc(noB(x.c)?'-':bName(x.c.batchId))}</td><td>${x.n}</td><td>${x.k.H}</td><td>${x.k.I}</td><td>${x.k.S}</td><td>${x.k.A}</td><td>${x.k.L}</td><td><div class='row' style='margin:0;gap:8px;flex-wrap:nowrap'><b style='min-width:46px'>${x.p===null?'–':fm(x.p)+'%'}</b><div class='pb'><i style='width:${x.p||0}%'></i></div></div></td><td><button class='g' data-go='${x.i}' title='Lihat kelas ini'>›</button></td></tr>`).join('')||"<tr><td colspan='10' class='mu'>Belum ada kelas.</td></tr>"}${rows.length>1?`<tr style='font-weight:700;background:var(--pr2)'><td>Total</td><td></td><td>${tot.n}</td><td>${tot.H}</td><td>${tot.I}</td><td>${tot.S}</td><td>${tot.A}</td><td>${tot.L}</td><td>${td?fm(Math.round(tot.H/td*1000)/10)+'%':'–'}</td><td></td></tr>`:''}</table></div></div>
  <div class='two'><div class='card'><b style='font-size:17px'>📈 Rekap Kehadiran</b> <span class='mu'>${esc(pl_)}</span><div class='row' style='margin:14px 0 0;gap:18px;flex-wrap:wrap'><div class='donut' style='background:${dn?`conic-gradient(${seg})`:'var(--bd)'}'><div><b style='font-size:24px'>${pc===null?'–':fm(pc)+'%'}</b><span class='mu'>Hadir</span></div></div><div style='flex:1'>${['H','I','S','A'].map(k=>`<div class='lg'><span class='dot' style='background:var(--${k})'></span>${SN[k]} (${k})<b>${cnt[k]}</b><span class='mu'>${dn?fm(Math.round(cnt[k]/dn*1000)/10)+'%':'–'}</span></div>`).join('')}<div class='lg mu'><span class='dot' style='background:var(--L)'></span>Libur (L)<b>${cnt.L}</b></div><div class='mu' style='font-size:12px;margin-top:6px'>Libur tidak dihitung dalam persentase.</div></div></div></div>
  <div class='card'><div class='row' style='justify-content:space-between;margin-bottom:6px'><b style='font-size:17px'>⚠️ Status Perhatian</b>${att.length>5?`<button class='g' id='pall'>${F.all?'Ringkas':'Lihat Semua ('+att.length+')'}</button>`:''}</div><p class='mu' style='font-size:12px;margin:0 0 10px'>Kondisi kehadiran dan kondisi akademik ditampilkan terpisah agar izin atau sakit tidak otomatis dianggap sebagai masalah akademik.</p><div class='tw'><table><tr><th>Nama Siswa</th><th>Kelas</th><th>Kondisi Kehadiran</th><th>Kondisi Akademik</th><th>Keterangan Kehadiran</th><th></th></tr>${(F.all?att:att.slice(0,5)).map(x=>{const ds=x.day?SN[x.day.status]||'Belum diabsen':'Belum diabsen';const dc=x.day?`<span class="tag" style="background:${SC[x.day.status]||'var(--L)'}">${esc(ds)}</span>`:`<span class="mu">Belum diabsen</span>`;const ac=x.a.st==='PERLU PERHATIAN KHUSUS'?'Perlu Evaluasi':x.a.st==='PERLU EVALUASI'?'Perlu Evaluasi':x.a.st==='BERKEMBANG POSITIF'?'Perkembangan Baik':x.a.av===null?'Belum Ada Penilaian':'Perkembangan Baik';const ab=ac==='Perlu Evaluasi'?'<span class="tag" style="background:#a45f61">Perlu Evaluasi</span>':ac==='Belum Ada Penilaian'?'<span class="tag" style="background:#858e96">Belum Ada Penilaian</span>':'<span class="tag" style="background:#527b65">Perkembangan Baik</span>';return `<tr><td><b>${esc(x.s.name)}</b></td><td>${esc(cls(x.s.classId))}</td><td>${dc}</td><td>${ab}</td><td>${esc(x.day?.note||'–')}</td><td><button class='g' data-mon='${esc(x.n)}' title='Lihat di Monitoring'>👁</button></td></tr>`}).join('')||"<tr><td colspan='6' class='mu'>Tidak ada siswa yang perlu perhatian pada periode ini.</td></tr>"}</table></div></div></div>`;
+ bindYgCalendarDemo(m);
  perBind(F.p,'dp',()=>{dirty=false;render()});
  $('#db').onchange=e=>{F.b=e.target.value;F.c='';dirty=false;render()};$('#dc').onchange=e=>{F.c=e.target.value;dirty=false;render()};
  $('#rb').onchange=e=>{F.rb=e.target.value;F.rc='';dirty=false;render()};$('#rc').onchange=e=>{F.rc=e.target.value;dirty=false;render()};
