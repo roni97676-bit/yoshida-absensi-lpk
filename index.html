@@ -1128,7 +1128,32 @@ function nilaiv3(m){
    }
   }catch(e){toast('Gagal: '+(e.message||e.code))}};
  if($('#gc'))$('#gc').onclick=()=>{window._gid=null;f.sel={};dirty=false;render()};
- m.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>{const g=S.grades[b.dataset.ge],c=S.classes[S.students[g.nis]?.classId];Object.assign(f,{date:g.date,cat:g.category,type:g.type,title:g.title||'',note:g.note||'',cid:S.students[g.nis]?.classId||f.cid,b:c?(noB(c)?'_none':c.batchId):f.b,sel:{[g.nis]:String(g.score)}});window._gid=b.dataset.ge;dirty=false;render()});
+ m.querySelectorAll('[data-ge]').forEach(b=>b.onclick=()=>{
+  const id=b.dataset.ge,g=S.grades[id];if(!g){toast('Catatan tidak ditemukan. Muat ulang halaman.');return}
+  const prior=document.getElementById('yg-note-edit-modal');if(prior)prior.remove();
+  const modal=document.createElement('div');modal.id='yg-note-edit-modal';
+  modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(10,24,40,.58);display:flex;align-items:center;justify-content:center;padding:18px';
+  modal.innerHTML=`<div role="dialog" aria-modal="true" aria-labelledby="yg-note-edit-title" style="background:#fff;color:#26384a;width:min(520px,100%);border-radius:14px;padding:22px;box-shadow:0 18px 60px rgba(0,0,0,.25)">
+   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px"><b id="yg-note-edit-title" style="font-size:18px">Edit Catatan</b><button type="button" id="yg-note-close" class="g">Tutup</button></div>
+   <div style="font-size:13px;color:#64748b;margin-bottom:12px">${esc(S.students[g.nis]?.name||g.nis)} · ${esc(g.category||'')} · Nilai ${esc(g.score)}</div>
+   <label for="yg-note-edit-input" style="display:block;font-weight:600;margin-bottom:7px">Catatan</label>
+   <textarea id="yg-note-edit-input" rows="5" style="width:100%;box-sizing:border-box;border:1px solid #cbd5e1;border-radius:9px;padding:11px;font:inherit;resize:vertical">${esc(g.note||'')}</textarea>
+   <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px"><button type="button" id="yg-note-cancel" class="g">Batal</button><button type="button" id="yg-note-save" class="b">Simpan Catatan</button></div>
+  </div>`;
+  document.body.appendChild(modal);
+  const input=modal.querySelector('#yg-note-edit-input');input.focus();input.setSelectionRange(input.value.length,input.value.length);
+  const close=()=>modal.remove();
+  modal.querySelector('#yg-note-close').onclick=close;modal.querySelector('#yg-note-cancel').onclick=close;
+  modal.addEventListener('click',e=>{if(e.target===modal)close()});
+  modal.querySelector('#yg-note-save').onclick=async()=>{
+   const btn=modal.querySelector('#yg-note-save');btn.disabled=true;btn.textContent='Menyimpan...';
+   try{
+    await db.collection('grades').doc(id).update({note:input.value,updatedAt:new Date().toISOString()});
+    await log('nilai','Edit catatan '+(S.students[g.nis]?.name||g.nis)+' - '+(g.category||''));
+    close();dirty=false;toast('Catatan berhasil diperbarui.');render();
+   }catch(e){btn.disabled=false;btn.textContent='Simpan Catatan';toast('Gagal menyimpan catatan: '+(e.message||e.code))}
+  };
+ });
  m.querySelectorAll('[data-gx]').forEach(b=>b.onclick=async()=>{dirty=false;if(await confirmX('Hapus nilai ini?','Hapus')){const g=S.grades[b.dataset.gx];await db.collection('grades').doc(b.dataset.gx).delete();await log('nilai','Hapus '+(S.students[g.nis]?.name||g.nis)+' '+g.category+' '+g.score)}})}
 function mon3(m){
  const M=window._M=window._M||{b:'',c:'',q:'',p:{k:'all'}};
