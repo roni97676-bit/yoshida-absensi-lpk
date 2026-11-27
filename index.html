@@ -994,12 +994,12 @@ const scopeS=(bid,cid)=>{const ids=new Set(classesIn(bid).map(x=>x[0]));return O
 const clsB=id=>{const c=S.classes[id];return c?c.name+(noB(c)?'':' ('+bName(c.batchId)+')'):'-'};
 const fm=v=>v===null||v===undefined?'–':String(v).replace('.',',');
 const byName=(a,b)=>a[1].name.localeCompare(b[1].name);
-const PERS=[['today','Hari ini'],['date','Tanggal tertentu'],['7d','7 hari terakhir'],['1m','1 bulan terakhir'],['2m','2 bulan terakhir'],['3m','3 bulan terakhir'],['4m','4 bulan terakhir'],['6m','6 bulan terakhir'],['12m','12 bulan terakhir'],['all','Keseluruhan periode'],['range','Rentang tanggal...']];
+const PERS=[['today','Hari ini'],['date','Tanggal tertentu'],['7d','1 minggu terakhir'],['1m','1 bulan terakhir'],['2m','2 bulan terakhir'],['3m','3 bulan terakhir'],['4m','4 bulan terakhir'],['6m','6 bulan terakhir'],['12m','12 bulan terakhir'],['all','Keseluruhan periode'],['range','Rentang tanggal...']];
 const subM=(d,n)=>{const x=new Date(Date.parse(d)),day=x.getUTCDate();x.setUTCDate(1);x.setUTCMonth(x.getUTCMonth()-n);const dim=new Date(Date.UTC(x.getUTCFullYear(),x.getUTCMonth()+1,0)).getUTCDate();x.setUTCDate(Math.min(day,dim));return addD(x.toISOString().slice(0,10),1)};
 function perRange(p){const to=today(),k=p.k||'all';
  if(k==='today')return{r:{from:to,to},label:'Hari ini ('+to+')'};
  if(k==='date'){const d=p.d||to;return{r:{from:d,to:d},label:'Tanggal '+d}}
- if(k==='7d')return{r:{from:addD(to,-6),to},label:'7 hari terakhir'};
+ if(k==='7d')return{r:{from:addD(to,-6),to},label:'1 minggu terakhir'};
  if(/^\d+m$/.test(k)){const n=parseInt(k);return{r:{from:subM(to,n),to},label:n+' bulan terakhir'}}
  if(k==='range'){let f=p.from||'',t=p.to||to;if(f&&f>t)[f,t]=[t,f];return{r:f?{from:f,to:t}:{from:'0000-01-01',to:t},label:(f||'awal')+' s/d '+t}}
  return{r:'',label:'Keseluruhan periode'}}
@@ -1105,6 +1105,11 @@ function abs(m){
  const cnt=k=>list.filter(([n])=>val(n).status===k).length,filled=list.filter(([n])=>val(n).status).length;
  m.innerHTML=`${ph('Absensi Harian','Pilih batch, kelas, dan tanggal, lalu isi kehadiran seluruh siswa sekaligus')}
  <div class='card'><div class='tb' style='margin-bottom:14px'><div class='fld'><span>1. Batch</span><select id='ab'>${bOpts(A.b)||"<option value=''>(belum ada batch)</option>"}</select></div><div class='fld'><span>2. Kelas</span><select id='ac'>${cOpts(A.b,cid)||"<option value=''>(belum ada kelas)</option>"}</select></div><div class='fld'><span>3. Tanggal</span><input type='date' id='ad' value='${date}' ${can('edit')?'':`max='${today()}'`}></div><div class='row' style='margin:0 0 0 auto'><button class='g' id='all'>Semua Hadir</button><button class='b' id='sv' ${list.length?'':'disabled'}>Simpan</button></div></div>
+ <div style='margin:0 0 12px;padding:12px 14px;border-radius:10px;background:var(--pr2);color:var(--tx);display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center'>
+  <b>Batch: ${esc(A.b==='_none'?'Tanpa Batch':bName(A.b))}</b>
+  <b>Kelas: ${esc(S.classes[cid]?.name||'-')}</b>
+  <b>${esc(new Date(date+'T00:00:00').toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'}))}</b>
+ </div>
  <div class='row mu'>Terisi: <b>${filled}</b> · Belum: <b>${list.length-filled}</b> ${ST.map(k=>`<span class='tag' style='background:${SC[k]}'>${k} ${cnt(k)}</span>`).join(' ')}</div>
  <div class='tw'><table><tr><th>No</th><th>NIS</th><th>Nama</th><th>Status</th><th>Catatan</th></tr>${list.map(([n,s],i)=>{const v=val(n);return `<tr class='s${v.status}'><td>${i+1}</td><td>${esc(n)}</td><td>${esc(s.name)}</td><td><select data-n='${esc(n)}' class='st'><option value=''>-</option>${ST.map(k=>`<option value='${k}' ${v.status===k?'selected':''}>${k} · ${SN[k]}</option>`).join('')}</select></td><td><input class='nt' data-n='${esc(n)}' value='${esc(v.note)}'></td></tr>`}).join('')||"<tr><td colspan='5' class='mu'>Tidak ada siswa aktif di kelas ini.</td></tr>"}</table></div></div>`;
  $('#ab').onchange=e=>{A.b=e.target.value;A.c='';render()};$('#ac').onchange=e=>{A.c=e.target.value;render()};$('#ad').onchange=e=>{const next=e.target.value||today();if(!can('edit')&&next<today()){toast('Izin edit absensi tanggal lalu tidak tersedia.');A.d=today()}else A.d=next;render()};
