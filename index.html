@@ -652,6 +652,76 @@ nav .navuser{margin:18px 3px 7px;padding:13px 10px 5px;border-top:1px solid #fff
 @media(max-width:760px){#app>nav.np{width:min(290px,84vw)!important;transform:translateX(-100%)}#app>main#main{margin-left:0;width:100%;padding:64px 14px 18px}#app:not(.sidebar-collapsed)>nav.np{transform:translateX(0)!important}#app:not(.sidebar-collapsed) .sidebar-backdrop{display:block;position:fixed;inset:0;z-index:999;background:rgba(10,20,35,.45)}.sidebar-toggle{left:12px;top:12px;color:var(--pr)}#app:not(.sidebar-collapsed) .sidebar-toggle{left:min(246px,calc(84vw - 44px));color:#fff}#app>nav.np .sidebar-bottom .navart{display:none}}
 @media(min-width:761px){#app>nav.np .sidebar-bottom .navart{display:block}}
 
+
+/* Kalender Dashboard — tombol, panel, dan area interaktif */
+.yg-cal-launch{
+  width:270px!important;min-width:270px!important;min-height:54px!important;
+  display:flex!important;align-items:center!important;justify-content:flex-start!important;
+  gap:12px!important;padding:11px 16px!important;margin:0!important;
+  border:1px solid rgba(255,255,255,.16)!important;border-radius:14px!important;
+  background:rgba(23,57,95,.96)!important;color:#fff!important;
+  box-shadow:0 4px 14px rgba(15,35,60,.16)!important;
+  font-size:15px!important;font-weight:700!important;cursor:pointer!important;
+  pointer-events:auto!important;position:relative!important;z-index:5!important;
+}
+.yg-cal-launch:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.yg-cal-icon{font-size:22px!important;line-height:1!important}
+.yg-cal-label{display:inline-block!important;white-space:nowrap!important}
+.yg-cal-overlay{
+ position:fixed!important;inset:0!important;z-index:5000!important;
+ display:none!important;align-items:center!important;justify-content:center!important;
+ padding:18px!important;box-sizing:border-box!important;
+ background:rgba(12,25,42,.58)!important;pointer-events:none!important;
+}
+.yg-cal-overlay.open{display:flex!important;pointer-events:auto!important}
+.yg-cal-panel{
+ width:min(760px,calc(100vw - 36px))!important;max-height:calc(100vh - 36px)!important;
+ overflow:auto!important;position:relative!important;z-index:5001!important;
+ background:var(--card,#fff)!important;color:var(--tx,#26384a)!important;
+ border:1px solid var(--bd,#dce3ea)!important;border-radius:18px!important;
+ padding:22px!important;box-shadow:0 22px 70px rgba(0,0,0,.28)!important;
+ box-sizing:border-box!important;pointer-events:auto!important;
+}
+.yg-cal-head,.yg-cal-monthbar,.yg-cal-agenda-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important}
+.yg-cal-head h3{margin:0!important;font-size:22px!important}
+.yg-cal-head p{margin:5px 0 0!important;color:var(--muted,#718096)!important}
+.yg-cal-iconbtn{min-width:38px!important;min-height:38px!important;border:1px solid var(--bd,#dce3ea)!important;border-radius:9px!important;background:var(--card,#fff)!important;color:var(--tx,#26384a)!important;font-size:22px!important;cursor:pointer!important;pointer-events:auto!important}
+.yg-cal-monthbar{justify-content:center!important;margin:18px 0 12px!important}
+.yg-cal-monthbar strong{min-width:190px!important;text-align:center!important;font-size:17px!important}
+.yg-cal-grid{display:grid!important;grid-template-columns:repeat(7,minmax(0,1fr))!important;gap:5px!important}
+.yg-cal-week{text-align:center!important;padding:8px 2px!important;font-size:11px!important;font-weight:800!important;color:var(--muted,#718096)!important}
+.yg-cal-day{min-width:0!important;min-height:42px!important;border:1px solid transparent!important;border-radius:9px!important;background:transparent!important;color:var(--tx,#26384a)!important;cursor:pointer!important;pointer-events:auto!important}
+.yg-cal-day:hover{background:var(--pr2,#edf2f7)!important}
+.yg-cal-day.muted{color:#a0acb8!important}
+.yg-cal-day.today{border-color:var(--pr,#294966)!important;font-weight:800!important}
+.yg-cal-day.selected{background:var(--pr,#294966)!important;color:#fff!important}
+.yg-cal-day.has-event:after{content:"";display:block;width:5px;height:5px;margin:2px auto 0;border-radius:50%;background:#a66b4f}
+.yg-cal-legend{display:flex!important;gap:16px!important;align-items:center!important;margin:12px 0 16px!important;padding-bottom:12px!important;border-bottom:1px solid var(--bd,#dce3ea)!important;color:var(--muted,#718096)!important;font-size:12px!important}
+.yg-cal-dot{display:inline-block!important;width:7px;height:7px;border-radius:50%;background:#a66b4f;margin-right:6px}
+.yg-cal-agenda{display:flex!important;flex-direction:column!important;gap:10px!important}
+.yg-cal-agenda-head h4{margin:0!important;font-size:16px!important}
+.yg-cal-add{min-height:38px!important;padding:8px 14px!important;border:0!important;border-radius:9px!important;background:var(--pr,#294966)!important;color:#fff!important;font-weight:700!important;cursor:pointer!important}
+.yg-cal-item{padding:12px!important;border:1px solid var(--bd,#dce3ea)!important;border-radius:11px!important;background:var(--pr2,#f4f6f8)!important}
+.yg-cal-item-top{display:flex!important;justify-content:space-between!important;gap:10px!important;align-items:center!important}
+.yg-cal-item p{margin:6px 0!important;color:var(--muted,#718096)!important}
+.yg-cal-type{font-size:11px!important;padding:5px 9px!important;border-radius:20px!important;background:#f4ebe5!important;color:#805c48!important}
+.yg-cal-actions{display:flex!important;gap:6px!important;margin-top:7px!important}
+.yg-cal-actions button{padding:5px 9px!important;border:1px solid var(--bd,#dce3ea)!important;border-radius:7px!important;background:#fff!important;cursor:pointer!important}
+.yg-cal-empty{padding:14px!important;color:var(--muted,#718096)!important}
+.yg-cal-demo-note{margin-top:14px!important;padding:11px 13px!important;border-radius:9px!important;background:#f4ebe5!important;color:#805c48!important;font-size:12px!important}
+.yg-cal-form{display:grid!important;grid-template-columns:1fr!important;gap:8px!important;margin-top:14px!important;padding:14px!important;border:1px solid var(--bd,#dce3ea)!important;border-radius:12px!important}
+.yg-cal-form h4{margin:0 0 4px!important}
+.yg-cal-form label{font-size:13px!important;font-weight:700!important}
+.yg-cal-form input,.yg-cal-form select,.yg-cal-form textarea{width:100%!important;box-sizing:border-box!important;padding:10px!important;border:1px solid var(--bd,#dce3ea)!important;border-radius:8px!important;background:#fff!important;color:#26384a!important;font:inherit!important}
+.yg-cal-form textarea{min-height:76px!important;resize:vertical!important}
+.yg-cal-date-field,.yg-cal-form-foot{display:flex!important;gap:8px!important;align-items:center!important}
+.yg-cal-form-foot{justify-content:flex-end!important;margin-top:6px!important}
+@media(max-width:600px){
+ .yg-cal-launch{width:270px!important;max-width:100%!important}
+ .yg-cal-panel{padding:14px!important}
+ .yg-cal-day{min-height:36px!important}
+}
+
 </style>
 </head>
 <body>
